@@ -71,8 +71,8 @@ oriented quickly.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/complytime/complytime-website.git
-cd complytime-website
+git clone https://github.com/complytime/website.git
+cd website
 
 # 2. Install dependencies
 npm install
@@ -102,7 +102,7 @@ npm run format
 ## Project Structure
 
 ```
-complytime-website/
+website/
 ├── assets/                          # Processed assets (SCSS, JS, images)
 │   ├── js/custom.js                 #   Custom JavaScript (currently empty)
 │   └── scss/common/

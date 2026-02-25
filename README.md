@@ -35,7 +35,7 @@ The output will be in the `public/` directory.
 ## 📁 Project Structure
 
 ```
-complytime-website/
+website/
 ├── assets/                # SCSS, JavaScript, images
 │   └── scss/
 │       └── common/

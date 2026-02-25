@@ -1,4 +1,4 @@
-module github.com/complytime/complytime-website
+module github.com/complytime/website
 
 go 1.23
 

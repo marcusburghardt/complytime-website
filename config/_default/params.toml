@@ -74,7 +74,7 @@ mainSections = ["docs"]
   editPage = true
   lastMod = true
   repoHost = "GitHub"
-  docsRepo = "https://github.com/complytime/complytime-website"
+  docsRepo = "https://github.com/complytime/website"
   docsRepoBranch = "main"
   docsRepoSubPath = ""
 
