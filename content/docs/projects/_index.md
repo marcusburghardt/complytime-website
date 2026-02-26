@@ -47,13 +47,13 @@ ComplyTime consists of several interconnected projects, each serving a specific 
 
 <div class="row g-4 mb-5">
   <div class="col-md-6">
-    <a href="/docs/projects/compliance-to-policy/" class="text-decoration-none">
+    <a href="https://github.com/complytime/compliance-to-policy-go" class="text-decoration-none" target="_blank" rel="noopener">
       <div class="project-card p-4 rounded-4 h-100">
         <div class="d-flex align-items-center mb-3">
           <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill me-2">Go</span>
           <span class="text-body-secondary small">Framework</span>
         </div>
-        <h4 class="h5 fw-semibold text-body">compliance-to-policy</h4>
+        <h4 class="h5 fw-semibold text-body">compliance-to-policy-go</h4>
         <p class="text-body-secondary mb-0">C2P framework bridging the gap between compliance requirements and policy administration.</p>
       </div>
     </a>
@@ -94,20 +94,8 @@ ComplyTime consists of several interconnected projects, each serving a specific 
           <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill me-2">Go</span>
           <span class="text-body-secondary small">Observability</span>
         </div>
-        <h4 class="h5 fw-semibold text-body">collector-components</h4>
+        <h4 class="h5 fw-semibold text-body">complytime-collector-components</h4>
         <p class="text-body-secondary mb-0">A policy-driven observability toolkit for automated compliance evidence collection.</p>
-      </div>
-    </a>
-  </div>
-  <div class="col-md-6">
-    <a href="https://github.com/complytime/complytime-collector-distro" class="text-decoration-none" target="_blank" rel="noopener">
-      <div class="project-card p-4 rounded-4 h-100">
-        <div class="d-flex align-items-center mb-3">
-          <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill me-2">Distribution</span>
-          <span class="text-body-secondary small">Releases</span>
-        </div>
-        <h4 class="h5 fw-semibold text-body">collector-distro</h4>
-        <p class="text-body-secondary mb-0">Beacon collector releases and distribution packages.</p>
       </div>
     </a>
   </div>
@@ -151,7 +139,7 @@ ComplyTime consists of several interconnected projects, each serving a specific 
           <span class="badge bg-success-subtle text-success-emphasis rounded-pill me-2">Demo</span>
         </div>
         <h4 class="h5 fw-semibold text-body">complytime-demos</h4>
-        <p class="text-body-secondary mb-0">Feature demonstration examples for ComplyTime tools.</p>
+        <p class="text-body-secondary mb-0">Collection of reusable demonstrations and practical examples for implementing the ComplyTime framework.</p>
       </div>
     </a>
   </div>

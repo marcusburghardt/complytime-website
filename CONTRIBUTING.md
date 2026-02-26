@@ -20,10 +20,6 @@ oriented quickly.
   - [Modify the Homepage](#modify-the-homepage)
   - [Change Colors or Typography](#change-colors-or-typography)
   - [Add Images](#add-images)
-- [Content Sync System](#content-sync-system)
-  - [How It Works](#how-it-works)
-  - [Adding a New Upstream Source](#adding-a-new-upstream-source)
-  - [Running Sync Locally](#running-sync-locally)
 - [Hugo and Doks Theme Basics](#hugo-and-doks-theme-basics)
   - [Template Lookup Order](#template-lookup-order)
   - [Custom Overrides Already in Place](#custom-overrides-already-in-place)
@@ -45,7 +41,6 @@ oriented quickly.
 | Change theme colors        | `assets/scss/common/_variables-custom.scss`        |
 | Add custom CSS             | `assets/scss/common/_custom.scss`                  |
 | Edit the homepage          | `layouts/home.html` + `content/_index.md`          |
-| Add a content sync source  | `sync-config.yaml`                                 |
 | Site-wide Hugo settings    | `config/_default/hugo.toml`                        |
 | Theme/feature parameters   | `config/_default/params.toml`                      |
 
@@ -58,11 +53,10 @@ oriented quickly.
 | **Node.js** | ≥ 20.11.0 | Required by Hugo/Doks pipeline            |
 | **npm**    | (bundled) | Comes with Node.js                        |
 | **Hugo**   | ≥ 0.148.1 | Extended edition; installed via npm scripts |
-| **Go**     | ≥ 1.23    | Only needed if working on the sync engine  |
 | **Git**    | Any recent | For cloning and version control            |
 
 > **Tip:** If you only want to edit Markdown content, Node.js + npm is all you
-> need. Go is only required for the content sync tool (`cmd/sync-content/`).
+> need.
 
 ---
 
@@ -108,9 +102,6 @@ website/
 │       ├── _variables-custom.scss   #   Theme colors, fonts, card styles
 │       └── _custom.scss             #   Additional custom CSS
 │
-├── cmd/sync-content/                # Go-based content sync engine
-│   └── main.go                      #   Pulls docs from upstream repos
-│
 ├── config/_default/                 # Hugo configuration (TOML)
 │   ├── hugo.toml                    #   Core Hugo settings
 │   ├── params.toml                  #   Doks theme parameters
@@ -124,8 +115,7 @@ website/
 │   └── docs/
 │       ├── getting-started/         #   Getting started guide
 │       ├── projects/                #   Project pages (complyctl, etc.)
-│       ├── concepts/                #   Core concepts (OSCAL, etc.)
-│       └── contributing/            #   Contributing info
+│       └── getting-started/         #   Getting started guide
 │
 ├── layouts/                         # Custom Hugo layout overrides
 │   ├── home.html                    #   Homepage template (hero + features)
@@ -135,8 +125,6 @@ website/
 │
 ├── static/                          # Static assets (copied as-is to output)
 ├── images/                          # Project logos and illustrations
-├── sync-config.yaml                 # Declarative manifest for content sync
-├── netlify.toml                     # Netlify deploy + security headers
 └── package.json                     # Node.js dependencies and scripts
 ```
 
@@ -149,8 +137,6 @@ website/
 | `assets/scss/common/`       | Styling (colors, layout) | Occasionally |
 | `layouts/home.html`         | Homepage layout | Rarely |
 | `layouts/docs/list.html`    | Docs section template | Rarely |
-| `sync-config.yaml`          | Upstream content sources | When adding new repos |
-| `cmd/sync-content/main.go`  | Sync engine source | Rarely |
 | `config/_default/params.toml` | Theme feature flags | Rarely |
 
 ---
@@ -271,77 +257,6 @@ This means standard Markdown image syntax works for both local and remote images
 
 ---
 
-## Content Sync System
-
-The website automatically pulls documentation from upstream ComplyTime
-repositories so that project docs stay in sync with their source repos.
-
-### How It Works
-
-1. **`sync-config.yaml`** declares which files to pull from which repos
-2. **`cmd/sync-content/main.go`** is a Go program that fetches those files,
-   applies transforms (frontmatter injection, link rewriting, badge stripping),
-   and writes them to `content/`
-3. **`.github/workflows/sync-content.yml`** runs this daily (06:00 UTC) and
-   opens a PR if content changed
-4. A **discovery mode** also scans the GitHub org for new repos or doc files not
-   yet in the manifest
-
-### Adding a New Upstream Source
-
-Edit `sync-config.yaml` and append an entry:
-
-```yaml
-sources:
-  - repo: complytime/new-project
-    files:
-      - src: README.md
-        dest: content/docs/projects/new-project/_index.md
-        transform:
-          inject_frontmatter:
-            title: "New Project"
-            description: "Description here."
-            weight: 10
-          rewrite_links: true
-          strip_badges: true
-
-      - src: docs/GUIDE.md
-        dest: content/docs/projects/new-project/guide.md
-        transform:
-          inject_frontmatter:
-            title: "Guide"
-            description: "Guide for New Project."
-            weight: 20
-          rewrite_links: true
-```
-
-**Transform options:**
-- `inject_frontmatter` — Prepends Hugo YAML frontmatter
-- `rewrite_links: true` — Converts relative Markdown links to absolute GitHub URLs
-- `strip_badges: true` — Removes CI/coverage badge images from the top of READMEs
-
-### Running Sync Locally
-
-```bash
-# Dry run (shows what would change, writes nothing)
-go run ./cmd/sync-content
-
-# Apply changes to disk
-go run ./cmd/sync-content --write
-
-# Sync only one repo
-go run ./cmd/sync-content --write --repo complytime/complyctl
-
-# Run discovery (report new repos/docs not in manifest)
-go run ./cmd/sync-content --discover
-```
-
-> **Note:** You need a `GITHUB_TOKEN` environment variable for API access
-> (especially to avoid rate limits). For public repos, unauthenticated requests
-> work but are limited to 60/hour.
-
----
-
 ## Hugo and Doks Theme Basics
 
 This site uses [Hugo](https://gohugo.io/) with the
@@ -390,18 +305,6 @@ the local `layouts/home.html` is used instead.
 - **What it does:** Installs Node.js + Hugo, runs `hugo --minify --gc`, uploads
   to GitHub Pages
 - **Pinned actions:** All GitHub Actions use SHA-pinned versions for security
-
-### Content Sync (`sync-content.yml`)
-
-- **Trigger:** Daily at 06:00 UTC, or manual `workflow_dispatch`
-- **What it does:** Runs the Go sync engine, opens a PR if content changed,
-  runs discovery and opens an issue if new repos/files are found
-- **Manual inputs:** `repo_filter`, `dry_run`, `discover_only`
-
-### Netlify (Optional)
-
-`netlify.toml` is configured for Netlify deployment as an alternative.
-It includes security headers (CSP, HSTS, X-Frame-Options, etc.).
 
 ---
 
@@ -497,17 +400,6 @@ handle most cases. If it doesn't:
 - Local SVGs: Place them in `assets/` or a page bundle
 - The error level is set to `ignore` in `params.toml`, so most issues are
   silently skipped
-
-### Content sync issues
-
-```bash
-# Check what would change without writing
-go run ./cmd/sync-content
-
-# If GitHub API rate-limits you, set a token
-export GITHUB_TOKEN=ghp_your_token_here
-go run ./cmd/sync-content --write
-```
 
 ### Build output confusion: `public/` vs `docs/`
 
