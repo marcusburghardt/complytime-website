@@ -1,0 +1,9 @@
+[en]
+  languageName = "English"
+  contentDir = "content"
+  weight = 10
+  [en.params]
+    languageISO = "EN"
+    languageTag = "en-US"
+    footer = '© 2026 <a class="text-muted" href="https://github.com/complytime">ComplyTime</a>'
+    alertText = 'ComplyTime announcements <a class="alert-link stretched-link" href="https://github.com/complytime"></a>'
