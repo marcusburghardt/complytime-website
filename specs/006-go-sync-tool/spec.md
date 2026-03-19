@@ -27,7 +27,7 @@ This feature replaces that workflow with a Go CLI tool (`cmd/sync-content/`, ~2,
 | IS-006 | Concurrent processing with bounded worker pool (`--workers`) |
 | IS-007 | Dry-run by default; `--write` flag required for disk I/O |
 | IS-008 | Markdown transforms: `stripLeadingH1` (removes leading H1 — title already in frontmatter), `shiftHeadings` (H1→H2, H2→H3, …), `titleCaseHeadings` (acronym-aware Title Case for in-page headings and TOC; normalises ALL CAPS words to Title Case while preserving known acronyms from the `knownAcronyms` map in `hugo.go` — ~30 domain terms; maintainers add entries as new projects introduce terminology), `stripBadges`, `rewriteRelativeLinks` |
-| IS-009 | Repo filtering: exclude archived repos, forks, `--include`/`--exclude` lists |
+| IS-009 | Repo filtering: `--include`/`--exclude` lists (peribolos is the governance gate; no API metadata filtering) |
 | IS-012 | Sync manifest (`.sync-manifest.json`) for orphan file tracking |
 | IS-014 | Doc page auto-sync from `discovery.scan_paths` directories |
 | IS-016 | Single-repo mode (`--repo`): sync only one repository (validated against peribolos) |
@@ -52,9 +52,7 @@ This feature replaces that workflow with a Go CLI tool (`cmd/sync-content/`, ~2,
 
 | Case | Expected Behavior |
 |------|-------------------|
-| Repo in peribolos but archived on GitHub | Excluded by existing archived-repo filter (fetched from API metadata) |
 | Repo in peribolos but deleted on GitHub | API metadata fetch returns 404; log warning, skip repo, continue |
-| Repo on GitHub but NOT in peribolos | Excluded — governance registry is authoritative |
 | `.github` repo missing or peribolos.yaml absent | Fatal error — log and exit non-zero |
 | `--org` flag value doesn't match peribolos `orgs` key | Fatal error — log mismatch and exit non-zero |
 | `--repo` flag used (single-repo mode) | Validated against peribolos — repo must exist in governance registry; metadata fetched from API |
@@ -76,7 +74,7 @@ This feature replaces that workflow with a Go CLI tool (`cmd/sync-content/`, ~2,
 
 **Acceptance Scenarios**:
 - **US2-SC1**: Repos listed in `peribolos.yaml` (and NOT in `sync-config.yaml`) produce: (a) `_index.md` with frontmatter (`title` via `formatRepoTitle`, `linkTitle` with raw repo name, `description`, `params.language`, `params.stars`, `params.source_sha`, `params.readme_sha`, `params.seo.*`) and no body, (b) `overview.md` with transformed README content (headings shifted and Title Cased).
-- **US2-SC2**: `data/projects.json` contains a `ProjectCard` for every eligible repo from peribolos (non-archived, non-forked), sorted alphabetically, with fields `name`, `language`, `type`, `description`, `url`, `repo`, `stars`.
+- **US2-SC2**: `data/projects.json` contains a `ProjectCard` for every eligible repo from peribolos, sorted alphabetically, with fields `name`, `language`, `type`, `description`, `url`, `repo`, `stars`.
 - **US2-SC3**: Repos present on GitHub but NOT in `peribolos.yaml` are excluded from sync (governance registry is authoritative).
 - **US2-SC4**: If `peribolos.yaml` cannot be fetched (e.g., `.github` repo missing or network error), the tool logs an error and exits non-zero rather than silently falling back to API listing.
 

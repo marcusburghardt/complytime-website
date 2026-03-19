@@ -18,7 +18,7 @@ The tool operates in **hybrid mode** with two complementary phases:
 
 Fetches `peribolos.yaml` from the org's `.github` repo to get the authoritative
 list of repositories, then enriches each with metadata from the GitHub REST API.
-For each eligible (non-archived, non-fork) repo it:
+For each eligible repo it:
 
 1. Fetches the README and branch HEAD SHA.
 2. Generates two Hugo pages per project:
@@ -287,7 +287,7 @@ This minimizes API calls and disk writes.
 **Manifest-based orphan cleanup.** A `.sync-manifest.json` file tracks every file
 written during a sync run. On the next run, files in the old manifest but absent
 from the current run are deleted, and empty parent directories are pruned. This
-handles repos being archived, renamed, or removed from the org.
+handles repos being renamed or removed from peribolos.
 
 **Idempotent writes.** Before writing a file, the tool reads the existing content
 and compares bytes. If identical, the write is skipped entirely. This means

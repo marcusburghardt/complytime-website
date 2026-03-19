@@ -37,8 +37,6 @@ type Repo struct {
 	HTMLURL         string   `json:"html_url"`
 	DefaultBranch   string   `json:"default_branch"`
 	PushedAt        string   `json:"pushed_at"`
-	Archived        bool     `json:"archived"`
-	Fork            bool     `json:"fork"`
 	Topics          []string `json:"topics"`
 }
 

@@ -197,7 +197,7 @@ func main() {
 			continue
 		}
 		included := len(includeSet) == 0 || includeSet[repo.Name]
-		if repo.Archived || repo.Fork || !included || excludeSet[repo.Name] {
+		if !included || excludeSet[repo.Name] {
 			result.skipped++
 			continue
 		}
