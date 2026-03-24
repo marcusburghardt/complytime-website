@@ -51,7 +51,9 @@ func TestReadLock_MissingFile(t *testing.T) {
 func TestReadLock_InvalidJSON(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "bad.json")
-	os.WriteFile(path, []byte("not json"), 0o644)
+	if err := os.WriteFile(path, []byte("not json"), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	_, err := readLock(path)
 	if err == nil {
@@ -106,7 +108,9 @@ func TestWriteLock_DeterministicOrder(t *testing.T) {
 func TestReadLock_NilReposInitialized(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "lock.json")
-	os.WriteFile(path, []byte(`{}`), 0o644)
+	if err := os.WriteFile(path, []byte(`{}`), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	lock, err := readLock(path)
 	if err != nil {

@@ -130,11 +130,11 @@ func injectFrontmatter(content []byte, fm map[string]any) ([]byte, error) {
 	buf.WriteString("---\n\n")
 
 	body := content
-	if bytes.HasPrefix(body, []byte("---\n")) {
+	if len(body) >= 4 && bytes.HasPrefix(body, []byte("---\n")) {
 		rest := body[4:]
 		end := bytes.Index(rest, []byte("\n---\n"))
-		if end != -1 {
-			body = bytes.TrimLeft(rest[end+4+1:], "\n")
+		if end != -1 && end+5 <= len(rest) {
+			body = bytes.TrimLeft(rest[end+5:], "\n")
 		} else if end2 := bytes.Index(rest, []byte("\n---")); end2 != -1 && end2+4 == len(rest) {
 			body = nil
 		}

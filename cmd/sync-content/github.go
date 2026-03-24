@@ -89,13 +89,13 @@ func (c *apiClient) getJSON(ctx context.Context, url string, dst any) error {
 		if resp.StatusCode == http.StatusOK {
 			limited := io.LimitReader(resp.Body, maxResponseBytes)
 			err = json.NewDecoder(limited).Decode(dst)
-			io.Copy(io.Discard, resp.Body)
-			resp.Body.Close()
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
 			return err
 		}
 
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		lastErr = fmt.Errorf("GET %s: %d %s", url, resp.StatusCode, body)
 
 		if !isRateLimited(resp) || attempt == maxRetries {
@@ -140,7 +140,14 @@ func retryWait(resp *http.Response, attempt int) time.Duration {
 			}
 		}
 	}
-	return time.Duration(1<<uint(attempt)) * time.Second
+	shift := attempt
+	if shift < 0 {
+		shift = 0
+	}
+	if shift > 5 {
+		shift = 5
+	}
+	return time.Duration(1<<shift) * time.Second
 }
 
 // appendRef appends a ?ref= query parameter to a URL when ref is non-empty,

@@ -126,7 +126,7 @@ func writeFileSafe(path string, data []byte) (bool, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return false, err
 	}
-	return true, os.WriteFile(path, data, 0o644)
+	return true, os.WriteFile(path, data, 0o644) //nolint:gosec // G306: content files need 0o644 for Hugo
 }
 
 // syncConfigSource processes all FileSpec entries for a single config source,
@@ -515,24 +515,26 @@ func syncRepoDocPages(ctx context.Context, gh *apiClient, org string, repo Repo,
 // writeGitHubOutputs writes structured outputs for GitHub Actions integration.
 func writeGitHubOutputs(result *syncResult) {
 	if ghOutput := os.Getenv("GITHUB_OUTPUT"); ghOutput != "" {
-		f, err := os.OpenFile(ghOutput, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o644)
+		ghOutput = filepath.Clean(ghOutput)
+		f, err := os.OpenFile(ghOutput, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600) //nolint:gosec // G304: path from trusted Actions env
 		if err == nil {
-			defer f.Close()
+			defer func() { _ = f.Close() }()
 			hasChanges := "false"
 			if result.hasChanges() {
 				hasChanges = "true"
 			}
-			fmt.Fprintf(f, "has_changes=%s\n", hasChanges)
-			fmt.Fprintf(f, "changed_count=%d\n", len(result.added)+len(result.updated))
-			fmt.Fprintf(f, "error_count=%d\n", result.errors)
+			_, _ = fmt.Fprintf(f, "has_changes=%s\n", hasChanges)
+			_, _ = fmt.Fprintf(f, "changed_count=%d\n", len(result.added)+len(result.updated))
+			_, _ = fmt.Fprintf(f, "error_count=%d\n", result.errors)
 		}
 	}
 
 	if summaryPath := os.Getenv("GITHUB_STEP_SUMMARY"); summaryPath != "" {
-		f, err := os.OpenFile(summaryPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o644)
+		summaryPath = filepath.Clean(summaryPath)
+		f, err := os.OpenFile(summaryPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600) //nolint:gosec // G304: path from trusted Actions env
 		if err == nil {
-			defer f.Close()
-			fmt.Fprint(f, result.toMarkdown())
+			defer func() { _ = f.Close() }()
+			_, _ = fmt.Fprint(f, result.toMarkdown())
 		}
 	}
 }

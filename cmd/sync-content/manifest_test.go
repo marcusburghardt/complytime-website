@@ -44,7 +44,9 @@ func TestReadFrontmatterParams(t *testing.T) {
 	t.Run("reads params from generated frontmatter", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "_index.md")
-		os.WriteFile(path, []byte("---\ntitle: \"test\"\nparams:\n  source_sha: \"abc123\"\n  readme_sha: \"def456\"\n---\n"), 0o644)
+		if err := os.WriteFile(path, []byte("---\ntitle: \"test\"\nparams:\n  source_sha: \"abc123\"\n  readme_sha: \"def456\"\n---\n"), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		params := readFrontmatterParams(path)
 		if params == nil {
@@ -61,7 +63,9 @@ func TestReadFrontmatterParams(t *testing.T) {
 	t.Run("does not match similarly-prefixed keys", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "_index.md")
-		os.WriteFile(path, []byte("---\ntitle: \"test\"\nparams:\n  source_sha_v2: \"wrong\"\n  source_sha: \"correct\"\n---\n"), 0o644)
+		if err := os.WriteFile(path, []byte("---\ntitle: \"test\"\nparams:\n  source_sha_v2: \"wrong\"\n  source_sha: \"correct\"\n---\n"), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		params := readFrontmatterParams(path)
 		if v, _ := params["source_sha"].(string); v != "correct" {
@@ -82,7 +86,9 @@ func TestReadFrontmatterParams(t *testing.T) {
 	t.Run("no frontmatter returns nil", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "plain.md")
-		os.WriteFile(path, []byte("# No frontmatter\nBody."), 0o644)
+		if err := os.WriteFile(path, []byte("# No frontmatter\nBody."), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		params := readFrontmatterParams(path)
 		if params != nil {
@@ -93,7 +99,9 @@ func TestReadFrontmatterParams(t *testing.T) {
 	t.Run("no params section returns nil", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "no-params.md")
-		os.WriteFile(path, []byte("---\ntitle: test\n---\nBody."), 0o644)
+		if err := os.WriteFile(path, []byte("---\ntitle: test\n---\nBody."), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		params := readFrontmatterParams(path)
 		if params != nil {
@@ -105,10 +113,14 @@ func TestReadFrontmatterParams(t *testing.T) {
 func TestReadExistingState_UsesYAMLParsing(t *testing.T) {
 	dir := t.TempDir()
 	repoDir := filepath.Join(dir, "content", "docs", "projects", "test-repo")
-	os.MkdirAll(repoDir, 0o755)
-	os.WriteFile(filepath.Join(repoDir, "_index.md"), []byte(
+	if err := os.MkdirAll(repoDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(repoDir, "_index.md"), []byte(
 		"---\ntitle: \"test-repo\"\nparams:\n  source_sha: \"branch-sha-123\"\n  readme_sha: \"readme-sha-456\"\n---\n",
-	), 0o644)
+	), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	state := readExistingState(dir)
 	if len(state) != 1 {

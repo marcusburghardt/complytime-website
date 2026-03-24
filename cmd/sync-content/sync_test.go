@@ -21,7 +21,7 @@ func TestProcessRepo(t *testing.T) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64(readmeContent),
 			Encoding: "base64",
 			SHA:      "sha-readme",
@@ -30,7 +30,7 @@ func TestProcessRepo(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = branchSHA
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	server := httptest.NewServer(mux)
 	defer server.Close()
@@ -116,11 +116,11 @@ func TestProcessRepo_BranchUnchanged(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = branchSHA
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
 		readmeCalls++
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# test-repo\n\nContent"),
 			Encoding: "base64",
 			SHA:      "sha-readme",
@@ -179,7 +179,7 @@ func TestProcessRepo_BranchChangedReadmeUnchanged(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64(readmeContent),
 			Encoding: "base64",
 			SHA:      readmeSHA,
@@ -188,7 +188,7 @@ func TestProcessRepo_BranchChangedReadmeUnchanged(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = "new-branch-sha"
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	server := httptest.NewServer(mux)
 	defer server.Close()
@@ -226,7 +226,7 @@ func TestSyncConfigSource(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/complyctl/contents/README.md", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64(fileContent),
 			Encoding: "base64",
 			SHA:      "sha-file",
@@ -374,7 +374,7 @@ func TestSyncConfigSourceProvenance(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/complyctl/contents/README.md", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64(fileContent),
 			Encoding: "base64",
 			SHA:      fileSHA,
@@ -421,20 +421,20 @@ func TestSyncRepoDocPages(t *testing.T) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "installation.md", Path: "docs/installation.md", Type: "file"},
 			{Name: "usage.md", Path: "docs/usage.md", Type: "file"},
 		})
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs/installation.md", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# Installation\n\nRun `go install`."),
 			Encoding: "base64",
 			SHA:      "sha-install",
 		})
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs/usage.md", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# Usage\n\nRun the CLI tool."),
 			Encoding: "base64",
 			SHA:      "sha-usage",
@@ -525,14 +525,14 @@ func TestSyncRepoDocPages_SkipsConfigTracked(t *testing.T) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "installation.md", Path: "docs/installation.md", Type: "file"},
 			{Name: "usage.md", Path: "docs/usage.md", Type: "file"},
 		})
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs/installation.md", func(w http.ResponseWriter, r *http.Request) {
 		fetchedFiles["docs/installation.md"] = true
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# Installation\n\nSteps."),
 			Encoding: "base64",
 			SHA:      "sha-install",
@@ -540,7 +540,7 @@ func TestSyncRepoDocPages_SkipsConfigTracked(t *testing.T) {
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/contents/docs/usage.md", func(w http.ResponseWriter, r *http.Request) {
 		fetchedFiles["docs/usage.md"] = true
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# Usage\n\nRun it."),
 			Encoding: "base64",
 			SHA:      "sha-usage",
@@ -595,7 +595,7 @@ func TestSyncRepoDocPages_SkipsConfigTracked(t *testing.T) {
 func TestPathTraversalRejection(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/complyctl/contents/README.md", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# README\nContent here."),
 			Encoding: "base64",
 			SHA:      "sha-traversal",
@@ -636,7 +636,7 @@ func TestDryRunReturnsCard(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = "new-sha"
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	server := httptest.NewServer(mux)
 	defer server.Close()
@@ -668,10 +668,10 @@ func TestProcessRepo_NilOmitsCard(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = "new-sha"
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# test-repo\n\nContent"),
 			Encoding: "base64",
 			SHA:      "sha-readme",
@@ -683,8 +683,14 @@ func TestProcessRepo_NilOmitsCard(t *testing.T) {
 	gh := newTestClient(server.URL)
 	output := t.TempDir()
 
-	os.MkdirAll(filepath.Join(output, "content", "docs", "projects", "test-repo"), 0o000)
-	defer os.Chmod(filepath.Join(output, "content", "docs", "projects", "test-repo"), 0o755)
+	repoDir := filepath.Join(output, "content", "docs", "projects", "test-repo")
+	if err := os.MkdirAll(repoDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.Chmod(repoDir, 0o000); err != nil {
+		t.Fatalf("Chmod: %v", err)
+	}
+	defer func() { _ = os.Chmod(repoDir, 0o755) }()
 
 	repo := Repo{
 		Name:          "test-repo",
@@ -718,11 +724,11 @@ func TestProcessRepo_LockedSHA(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = upstreamSHA
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
 		readmeRefReceived = r.URL.Query().Get("ref")
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# test-repo\n\nLocked content."),
 			Encoding: "base64",
 			SHA:      "sha-readme-locked",
@@ -768,11 +774,11 @@ func TestProcessRepo_LockedSHA_MatchesUpstream(t *testing.T) {
 	mux.HandleFunc("/repos/testorg/test-repo/branches/main", func(w http.ResponseWriter, r *http.Request) {
 		resp := BranchResponse{}
 		resp.Commit.SHA = sameSHA
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/repos/testorg/test-repo/readme", func(w http.ResponseWriter, r *http.Request) {
 		readmeRefReceived = r.URL.Query().Get("ref")
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  b64("# test-repo\n\nContent."),
 			Encoding: "base64",
 			SHA:      "sha-readme",
@@ -803,13 +809,13 @@ func TestProcessRepo_LockedSHA_MatchesUpstream(t *testing.T) {
 }
 
 func TestParseNameList_RepoFilterOverridesExclude(t *testing.T) {
-	includeSet := parseNameList("")
+	_ = parseNameList("")
 	excludeSet := parseNameList("complyctl,complyscribe")
 
 	repoFilter := "complytime/complyctl"
 	parts := strings.SplitN(repoFilter, "/", 2)
 	shortName := parts[1]
-	includeSet = map[string]bool{shortName: true}
+	includeSet := map[string]bool{shortName: true}
 	delete(excludeSet, shortName)
 
 	if excludeSet["complyctl"] {

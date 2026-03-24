@@ -12,7 +12,7 @@ func TestLoadConfig(t *testing.T) {
 	t.Run("valid config", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "sync-config.yaml")
-		os.WriteFile(path, []byte(`
+		if err := os.WriteFile(path, []byte(`
 defaults:
   branch: main
 sources:
@@ -20,7 +20,9 @@ sources:
     files:
       - src: README.md
         dest: content/docs/projects/repo1/_index.md
-`), 0o644)
+`), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		cfg, err := loadConfig(path)
 		if err != nil {
@@ -43,13 +45,15 @@ sources:
 	t.Run("default branch applied", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "cfg.yaml")
-		os.WriteFile(path, []byte(`
+		if err := os.WriteFile(path, []byte(`
 sources:
   - repo: org/repo1
     files:
       - src: README.md
         dest: out/README.md
-`), 0o644)
+`), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		cfg, err := loadConfig(path)
 		if err != nil {
@@ -63,7 +67,9 @@ sources:
 	t.Run("malformed YAML", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "bad.yaml")
-		os.WriteFile(path, []byte(`{{{not yaml`), 0o644)
+		if err := os.WriteFile(path, []byte(`{{{not yaml`), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		_, err := loadConfig(path)
 		if err == nil {
@@ -81,12 +87,14 @@ sources:
 	t.Run("missing repo field", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "cfg.yaml")
-		os.WriteFile(path, []byte(`
+		if err := os.WriteFile(path, []byte(`
 sources:
   - files:
       - src: README.md
         dest: out/README.md
-`), 0o644)
+`), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		_, err := loadConfig(path)
 		if err == nil {
@@ -100,12 +108,14 @@ sources:
 	t.Run("missing src field", func(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "cfg.yaml")
-		os.WriteFile(path, []byte(`
+		if err := os.WriteFile(path, []byte(`
 sources:
   - repo: org/repo1
     files:
       - dest: out/README.md
-`), 0o644)
+`), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 
 		_, err := loadConfig(path)
 		if err == nil {

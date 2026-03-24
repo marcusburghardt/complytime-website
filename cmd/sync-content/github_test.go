@@ -14,7 +14,7 @@ func TestListDirMD(t *testing.T) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/repos/org/repo/contents/docs", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "guide.md", Path: "docs/guide.md", Type: "file"},
 			{Name: "image.png", Path: "docs/image.png", Type: "file"},
 			{Name: "sub", Path: "docs/sub", Type: "dir"},
@@ -22,7 +22,7 @@ func TestListDirMD(t *testing.T) {
 	})
 
 	mux.HandleFunc("/repos/org/repo/contents/docs/sub", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "nested.md", Path: "docs/sub/nested.md", Type: "file"},
 			{Name: "data.json", Path: "docs/sub/data.json", Type: "file"},
 		})
@@ -64,7 +64,7 @@ func TestListDirMD_DepthLimit(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/repo/contents/", func(w http.ResponseWriter, r *http.Request) {
 		callCount++
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "file.md", Path: r.URL.Path[len("/repos/org/repo/contents/"):] + "/file.md", Type: "file"},
 			{Name: "deeper", Path: r.URL.Path[len("/repos/org/repo/contents/"):] + "/deeper", Type: "dir"},
 		})
@@ -134,7 +134,7 @@ func TestGetREADME_WithRef(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/repo/readme", func(w http.ResponseWriter, r *http.Request) {
 		receivedRef = r.URL.Query().Get("ref")
-		json.NewEncoder(w).Encode(FileResponse{
+		_ = json.NewEncoder(w).Encode(FileResponse{
 			Content:  "VEVTVA==",
 			Encoding: "base64",
 			SHA:      "sha123",
@@ -171,7 +171,7 @@ func TestListDirMD_WithRef(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/repo/contents/docs", func(w http.ResponseWriter, r *http.Request) {
 		receivedRef = r.URL.Query().Get("ref")
-		json.NewEncoder(w).Encode([]DirEntry{
+		_ = json.NewEncoder(w).Encode([]DirEntry{
 			{Name: "guide.md", Path: "docs/guide.md", Type: "file"},
 		})
 	})
@@ -206,7 +206,7 @@ func TestFetchPeribolosRepos(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/repos/myorg/.github/contents/peribolos.yaml", func(w http.ResponseWriter, r *http.Request) {
-			json.NewEncoder(w).Encode(FileResponse{
+			_ = json.NewEncoder(w).Encode(FileResponse{
 				Content:  b64(peribolosYAML),
 				Encoding: "base64",
 			})
@@ -234,7 +234,7 @@ func TestFetchPeribolosRepos(t *testing.T) {
 	t.Run("missing org in peribolos", func(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/repos/otherorg/.github/contents/peribolos.yaml", func(w http.ResponseWriter, r *http.Request) {
-			json.NewEncoder(w).Encode(FileResponse{
+			_ = json.NewEncoder(w).Encode(FileResponse{
 				Content:  b64(peribolosYAML),
 				Encoding: "base64",
 			})
@@ -254,7 +254,7 @@ func TestFetchPeribolosRepos(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/repos/noorg/.github/contents/peribolos.yaml", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{"message":"Not Found"}`))
+			_, _ = w.Write([]byte(`{"message":"Not Found"}`))
 		})
 
 		server := httptest.NewServer(mux)
@@ -271,7 +271,7 @@ func TestFetchPeribolosRepos(t *testing.T) {
 func TestGetRepoMetadata(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/repos/org/myrepo", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(Repo{
+		_ = json.NewEncoder(w).Encode(Repo{
 			Name:        "myrepo",
 			FullName:    "org/myrepo",
 			Description: "A test repo",
@@ -305,7 +305,7 @@ func TestContextCancellationDuringRetry(t *testing.T) {
 		callCount++
 		w.Header().Set("Retry-After", "60")
 		w.WriteHeader(http.StatusTooManyRequests)
-		w.Write([]byte(`{"message":"rate limited"}`))
+		_, _ = w.Write([]byte(`{"message":"rate limited"}`))
 	})
 	server := httptest.NewServer(mux)
 	defer server.Close()

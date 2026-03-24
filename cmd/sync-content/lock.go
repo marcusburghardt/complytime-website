@@ -58,7 +58,7 @@ func writeLock(path string, lock *ContentLock) error {
 	if err != nil {
 		return fmt.Errorf("marshaling lock: %w", err)
 	}
-	return os.WriteFile(path, append(data, '\n'), 0o644)
+	return os.WriteFile(path, append(data, '\n'), 0o600)
 }
 
 // sha returns the approved branch SHA for a repo, or "" if not locked.

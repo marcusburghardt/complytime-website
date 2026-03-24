@@ -131,5 +131,5 @@ func writeManifest(outputDir string, files []string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(outputDir, manifestFile), append(data, '\n'), 0o644)
+	return os.WriteFile(filepath.Join(outputDir, manifestFile), append(data, '\n'), 0o600)
 }

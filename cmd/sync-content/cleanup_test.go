@@ -15,8 +15,12 @@ func TestCleanOrphanedFiles(t *testing.T) {
 	otherFile := filepath.Join(dir, "content", "docs", "projects", "complyscribe", "_index.md")
 
 	for _, f := range []string{staleFile, keptFile, otherFile} {
-		os.MkdirAll(filepath.Dir(f), 0o755)
-		os.WriteFile(f, []byte("test"), 0o644)
+		if err := os.MkdirAll(filepath.Dir(f), 0o755); err != nil {
+			t.Fatalf("MkdirAll: %v", err)
+		}
+		if err := os.WriteFile(f, []byte("test"), 0o600); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
 	}
 
 	oldManifest := map[string]bool{
@@ -51,8 +55,12 @@ func TestCleanOrphanedFiles_PrunesEmptyDirs(t *testing.T) {
 
 	staleDir := filepath.Join(dir, "content", "docs", "projects", "removed-repo")
 	staleFile := filepath.Join(staleDir, "_index.md")
-	os.MkdirAll(staleDir, 0o755)
-	os.WriteFile(staleFile, []byte("test"), 0o644)
+	if err := os.MkdirAll(staleDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(staleFile, []byte("test"), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	oldManifest := map[string]bool{
 		"content/docs/projects/removed-repo/_index.md": true,
@@ -73,7 +81,9 @@ func TestCleanOrphanedFiles_TraversalBlocked(t *testing.T) {
 
 	outsideDir := t.TempDir()
 	outsideFile := filepath.Join(outsideDir, "should-survive.txt")
-	os.WriteFile(outsideFile, []byte("protected"), 0o644)
+	if err := os.WriteFile(outsideFile, []byte("protected"), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	relTraversal, err := filepath.Rel(dir, outsideFile)
 	if err != nil {
@@ -98,8 +108,12 @@ func TestCleanOrphanedFiles_LegitimateRemoval(t *testing.T) {
 	dir := t.TempDir()
 
 	legitFile := filepath.Join(dir, "content", "docs", "projects", "old-repo", "_index.md")
-	os.MkdirAll(filepath.Dir(legitFile), 0o755)
-	os.WriteFile(legitFile, []byte("stale"), 0o644)
+	if err := os.MkdirAll(filepath.Dir(legitFile), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(legitFile, []byte("stale"), 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	oldManifest := map[string]bool{
 		"content/docs/projects/old-repo/_index.md": true,
