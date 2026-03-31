@@ -6,7 +6,7 @@ date: 2024-01-01T00:00:00+00:00
 lastmod: 2024-12-24T00:00:00+00:00
 draft: false
 images: []
-weight: 100
+weight: 200
 toc: true
 ---
 
@@ -16,7 +16,7 @@ ComplyTime is a suite of open source tools designed to automate compliance workf
 
 ## Architecture Overview
 
-ComplyTime spans two core domains — **Definition** and **Measurement** — integrated into your Software Development Lifecycle.
+ComplyTime spans two core domains **Definition** and **Measurement** integrated into your Software Development Lifecycle.
 
 ![ComplyTime Architecture](/images/complytime-architecture.png)
 
@@ -28,9 +28,12 @@ ComplyTime spans two core domains — **Definition** and **Measurement** — int
 
 Before you begin, ensure you have:
 
-- **Go 1.21+** (for Go-based tools like `complyctl`)
-- **Python 3.10+** (for Python-based tools like `complyscribe`)
 - **Git** for cloning repositories
+
+To build from source, you will also need:
+
+- **Go 1.24+**
+- **Make**
 
 ## Quick Start with complyctl
 
@@ -38,14 +41,26 @@ The fastest way to get started is with `complyctl`, our command-line tool for co
 
 ### Installation
 
-```bash
-# Using Go
-go install github.com/complytime/complyctl@latest
+**Binary (recommended)**
 
-# Or download from releases
-curl -LO https://github.com/complytime/complyctl/releases/latest/download/complyctl-linux-amd64
-chmod +x complyctl-linux-amd64
-sudo mv complyctl-linux-amd64 /usr/local/bin/complyctl
+Download the latest release from the [complyctl releases page](https://github.com/complytime/complyctl/releases). Then verify the release signature using `cosign`:
+
+```bash
+cosign verify-blob \
+  --certificate complyctl_*_checksums.txt.pem \
+  --signature complyctl_*_checksums.txt.sig \
+  complyctl_*_checksums.txt \
+  --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+  --certificate-identity=https://github.com/complytime/complyctl/.github/workflows/release.yml@refs/heads/main
+```
+
+**Build from source**
+
+```bash
+git clone https://github.com/complytime/complyctl.git
+cd complyctl
+make build
+export PATH="$PWD/bin:$PATH"
 ```
 
 ### Verify Installation
@@ -54,15 +69,73 @@ sudo mv complyctl-linux-amd64 /usr/local/bin/complyctl
 complyctl version
 ```
 
-### Your First Compliance Check
+### Install a Scanning Provider
+
+Scanning providers are standalone executables placed in `~/.complytime/providers/`. The filename determines the evaluator ID (e.g. `complyctl-provider-openscap`).
 
 ```bash
-# Initialize a new compliance project
-complyctl init my-project
+mkdir -p ~/.complytime/providers
+cp bin/complyctl-provider-openscap ~/.complytime/providers/
+```
 
-# Run compliance assessment
-cd my-project
-complyctl assess
+For the OpenSCAP provider, also install the required system packages:
+
+- `openscap-scanner`
+- `scap-security-guide`
+
+### Your First Compliance Scan
+
+**1. Initialize a workspace**
+
+```bash
+complyctl init
+```
+
+Creates a `complytime.yaml` workspace config. If one already exists, it validates and runs `get` automatically.
+
+**2. Fetch policies**
+
+```bash
+complyctl get
+```
+
+Downloads Gemara policies from the OCI registry into the local cache (`~/.complytime/policies/`). Uses Docker credential helpers — if `docker login` works, `complyctl get` works.
+
+**3. Verify the cache**
+
+```bash
+complyctl list
+```
+
+**4. Generate assessment configuration**
+
+```bash
+complyctl generate --policy-id <policy-id>
+```
+
+**5. Run the scan**
+
+```bash
+# EvaluationLog (default)
+complyctl scan --policy-id <policy-id>
+
+# Markdown report
+complyctl scan --policy-id <policy-id> --format pretty
+
+# OSCAL assessment-results
+complyctl scan --policy-id <policy-id> --format oscal
+
+# SARIF
+complyctl scan --policy-id <policy-id> --format sarif
+```
+
+Output is written to `./.complytime/scan/`.
+
+**6. Check workspace health (optional)**
+
+```bash
+complyctl doctor
+complyctl providers
 ```
 
 ## Next Steps
