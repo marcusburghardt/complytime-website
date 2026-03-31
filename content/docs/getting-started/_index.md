@@ -14,6 +14,16 @@ toc: true
 
 ComplyTime is a suite of open source tools designed to automate compliance workflows in cloud native environments. Our engineering-first approach brings compliance into your existing DevSecOps pipeline.
 
+## Architecture Overview
+
+ComplyTime spans two core domains — **Definition** and **Measurement** — integrated into your Software Development Lifecycle.
+
+![ComplyTime Architecture](/images/complytime-architecture.png)
+
+- **Definition** — Users author Policies and Controls (with AI assist via the Gemara MCP), which are stored in Git and provide design requirements to the SDLC.
+- **Measurement** — `complyctl` and its plugins read those policies, run assessments in the deployment pipeline, and feed findings to enforcement gates, a Collector, and downstream systems like HyperProof and RHOBS.
+- **Preventative Enforcement** — An Admission Controller gates the Live Environment in real time, while a failed-job mechanism blocks the pipeline when controls are not met.
+
 ## Prerequisites
 
 Before you begin, ensure you have:
