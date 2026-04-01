@@ -21,7 +21,7 @@ ComplyTime spans two core domains **Definition** and **Measurement** integrated 
 {{< theme-image light="/images/complytime-architecture.png" dark="/images/complytime-architecture-dark.png" alt="ComplyTime Architecture Diagram" >}}
 
 - **Definition** — Users author Policies and Controls (with AI assistance via the Gemara MCP Server), which are stored in Git and provide design requirements to the SDLC.
-- **Measurement** — `complyctl` and its plugins read those policies, run assessments in the deployment pipeline, and feed findings to enforcement gates, a Collector, and downstream systems like HyperProof and RHOBS.
+- **Measurement** — `complyctl` and its plugins read those policies, run assessments in the deployment pipeline, and feed findings to enforcement gates, a Collector, and downstream systems like GRC and Observability Platforms.
 - **Preventative Enforcement** — An Admission Controller gates the Live Environment in real time, while a failed-job mechanism blocks the pipeline when controls are not met.
 
 ## Prerequisites
