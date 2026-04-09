@@ -21,8 +21,8 @@ Hugo site root. All paths relative to `website/`.
 
 **Purpose**: Commit the architecture diagram image files that all subsequent work depends on.
 
-- [ ] T001 Add light-theme architecture diagram PNG to `static/images/complytime-architecture.png`
-- [ ] T002 [P] Add dark-theme architecture diagram PNG to `static/images/complytime-architecture-dark.png`
+- [x] T001 Add light-theme architecture diagram PNG to `static/images/complytime-architecture.png`
+- [x] T002 [P] Add dark-theme architecture diagram PNG to `static/images/complytime-architecture-dark.png`
 
 **Checkpoint**: Both PNG assets present in `static/images/` — theme-image shortcode can now reference them
 
@@ -34,8 +34,8 @@ Hugo site root. All paths relative to `website/`.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create `layouts/shortcodes/theme-image.html` accepting `light`, `dark`, and `alt` params; render two `<img>` elements with classes `theme-image-light` and `theme-image-dark`; default `alt` to `"Architecture Diagram"` when omitted
-- [ ] T004 [P] Add `.theme-image-light` / `.theme-image-dark` CSS display rules to `assets/scss/common/_custom.scss` covering three cases: light default, `[data-bs-theme="dark"]` attribute, and `@media (prefers-color-scheme: dark)` with `:not([data-bs-theme="light"])` guard
+- [x] T003 Create `layouts/shortcodes/theme-image.html` accepting `light`, `dark`, and `alt` params; render two `<img>` elements with classes `theme-image-light` and `theme-image-dark`; default `alt` to `"Architecture Diagram"` when omitted
+- [x] T004 [P] Add `.theme-image-light` / `.theme-image-dark` CSS display rules to `assets/scss/common/_custom.scss` covering three cases: light default, `[data-bs-theme="dark"]` attribute, and `@media (prefers-color-scheme: dark)` with `:not([data-bs-theme="light"])` guard
 
 **Checkpoint**: Foundation ready — `{{< theme-image >}}` shortcode usable from any content page
 
@@ -47,9 +47,9 @@ Hugo site root. All paths relative to `website/`.
 
 **Independent Test**: Open `http://localhost:1313/docs/getting-started/`. Confirm an "Architecture Overview" section appears above Prerequisites, containing the architecture diagram image and three labelled domain descriptions.
 
-- [ ] T005 [US1] Add an "Architecture Overview" section heading above the Prerequisites section in `content/docs/getting-started/_index.md`
-- [ ] T006 [US1] Insert `{{< theme-image light="/images/complytime-architecture.png" dark="/images/complytime-architecture-dark.png" alt="ComplyTime Architecture Diagram" >}}` shortcode call within the Architecture Overview section in `content/docs/getting-started/_index.md`
-- [ ] T007 [US1] Add three-domain description bullet points (Definition, Measurement, Preventative Enforcement) below the diagram in `content/docs/getting-started/_index.md`
+- [x] T005 [US1] Add an "Architecture Overview" section heading above the Prerequisites section in `content/docs/getting-started/_index.md`
+- [x] T006 [US1] Insert `{{< theme-image light="/images/complytime-architecture.png" dark="/images/complytime-architecture-dark.png" alt="ComplyTime Architecture Diagram" >}}` shortcode call within the Architecture Overview section in `content/docs/getting-started/_index.md`
+- [x] T007 [US1] Add three-domain description bullet points (Definition, Measurement, Preventative Enforcement) below the diagram in `content/docs/getting-started/_index.md`
 
 **Checkpoint**: User Story 1 independently testable — architecture section visible with correct theme switching
 
@@ -61,11 +61,11 @@ Hugo site root. All paths relative to `website/`.
 
 **Independent Test**: Add `{{< theme-image light="/images/example-light.png" dark="/images/example-dark.png" alt="Example" >}}` to any content page, run `hugo --minify --gc`, inspect HTML output for two `<img>` elements with correct classes.
 
-- [ ] T008 [P] [US2] Confirm `layouts/shortcodes/theme-image.html` renders exactly two `<img>` elements — one with `class="theme-image-light"`, one with `class="theme-image-dark"` — for any valid `light`/`dark` parameter values
-- [ ] T009 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows only the light image when `data-bs-theme` is absent or `"light"` (`.theme-image-dark { display: none }` is the default)
-- [ ] T010 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows only the dark image when `[data-bs-theme="dark"]` is set on a parent element (explicit Bootstrap dark mode toggle)
-- [ ] T011 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows dark image under `@media (prefers-color-scheme: dark)` when no explicit `data-bs-theme` override is present (`:not([data-bs-theme="light"])` guard)
-- [ ] T012 [P] [US2] Confirm `alt` parameter defaults to `"Architecture Diagram"` in `layouts/shortcodes/theme-image.html` when the parameter is omitted by the caller
+- [x] T008 [P] [US2] Confirm `layouts/shortcodes/theme-image.html` renders exactly two `<img>` elements — one with `class="theme-image-light"`, one with `class="theme-image-dark"` — for any valid `light`/`dark` parameter values
+- [x] T009 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows only the light image when `data-bs-theme` is absent or `"light"` (`.theme-image-dark { display: none }` is the default)
+- [x] T010 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows only the dark image when `[data-bs-theme="dark"]` is set on a parent element (explicit Bootstrap dark mode toggle)
+- [x] T011 [P] [US2] Confirm CSS in `assets/scss/common/_custom.scss` shows dark image under `@media (prefers-color-scheme: dark)` when no explicit `data-bs-theme` override is present (`:not([data-bs-theme="light"])` guard)
+- [x] T012 [P] [US2] Confirm `alt` parameter defaults to `"Architecture Diagram"` in `layouts/shortcodes/theme-image.html` when the parameter is omitted by the caller
 
 **Checkpoint**: User Stories 1 and 2 both pass — shortcode works on getting-started and any other page
 
@@ -77,14 +77,14 @@ Hugo site root. All paths relative to `website/`.
 
 **Independent Test**: Follow the guide verbatim on a clean machine with no prior complyctl install. Each numbered command must exit 0 and produce the described output.
 
-- [ ] T013 [US3] Replace the outdated CLI installation section with current binary download instructions (GitHub releases page download of `complyctl` binary) in `content/docs/getting-started/_index.md`
-- [ ] T014 [US3] Add `cosign verify-blob` signature verification step with the correct GitHub Actions OIDC issuer and certificate identity in `content/docs/getting-started/_index.md`
-- [ ] T015 [US3] Add scanning provider installation step (download provider binary to `~/.complytime/providers/`, set executable) in `content/docs/getting-started/_index.md`
-- [ ] T016 [US3] Add `complyctl init` step showing workspace init in an empty directory producing `complytime.yaml` in `content/docs/getting-started/_index.md`
-- [ ] T017 [US3] Add `complyctl get` step showing policy fetch to `~/.complytime/policies/` in `content/docs/getting-started/_index.md`
-- [ ] T018 [US3] Add `complyctl list` and `complyctl generate` steps in `content/docs/getting-started/_index.md`
-- [ ] T019 [US3] Add `complyctl scan --policy-id <id>` step with all four output format examples (`EvaluationLog` default, `--format pretty`, `--format oscal`, `--format sarif`) in `content/docs/getting-started/_index.md`
-- [ ] T020 [US3] Add `complyctl doctor` and `complyctl providers` as optional health-check steps in `content/docs/getting-started/_index.md`
+- [x] T013 [US3] Replace the outdated CLI installation section with current binary download instructions (GitHub releases page download of `complyctl` binary) in `content/docs/getting-started/_index.md`
+- [x] T014 [US3] Add `cosign verify-blob` signature verification step with the correct GitHub Actions OIDC issuer and certificate identity in `content/docs/getting-started/_index.md`
+- [x] T015 [US3] Add scanning provider installation step (download provider binary to `~/.complytime/providers/`, set executable) in `content/docs/getting-started/_index.md`
+- [x] T016 [US3] Add `complyctl init` step showing workspace init in an empty directory producing `complytime.yaml` in `content/docs/getting-started/_index.md`
+- [x] T017 [US3] Add `complyctl get` step showing policy fetch to `~/.complytime/policies/` in `content/docs/getting-started/_index.md`
+- [x] T018 [US3] Add `complyctl list` and `complyctl generate` steps in `content/docs/getting-started/_index.md`
+- [x] T019 [US3] Add `complyctl scan --policy-id <id>` step with all four output format examples (`EvaluationLog` default, `--format pretty`, `--format oscal`, `--format sarif`) in `content/docs/getting-started/_index.md`
+- [x] T020 [US3] Add `complyctl doctor` and `complyctl providers` as optional health-check steps in `content/docs/getting-started/_index.md`
 
 **Checkpoint**: All three user stories independently functional — architecture diagram, shortcode, and guide all complete
 
@@ -94,12 +94,12 @@ Hugo site root. All paths relative to `website/`.
 
 **Purpose**: Verify constitution compliance and cross-cutting quality gates across all delivered stories.
 
-- [ ] T021 Run `hugo --minify --gc` from repo root and confirm zero errors and zero warnings (SC-007, FR-007)
-- [ ] T022 [P] Visual check in browser light mode: light architecture diagram is visible, dark variant is hidden (SC-001)
-- [ ] T023 [P] Visual check in browser dark mode (`data-bs-theme="dark"` on `<html>`): dark diagram visible, light hidden (SC-002)
-- [ ] T024 [P] Browser DevTools media query emulation: enable `prefers-color-scheme: dark` with no explicit `data-bs-theme` set — dark diagram must appear (SC-003)
-- [ ] T025 [P] NoScript test: disable JavaScript in browser, reload getting-started page — confirm fully readable with light diagram shown (SC-005, Constitution V)
-- [ ] T026 [P] HTML inspection: confirm both `<img>` elements have non-empty `alt` attributes in the rendered page source (Constitution VII)
+- [x] T021 Run `hugo --minify --gc` from repo root and confirm zero errors and zero warnings (SC-007, FR-007)
+- [x] T022 [P] Visual check in browser light mode: light architecture diagram is visible, dark variant is hidden (SC-001)
+- [x] T023 [P] Visual check in browser dark mode (`data-bs-theme="dark"` on `<html>`): dark diagram visible, light hidden (SC-002)
+- [x] T024 [P] Browser DevTools media query emulation: enable `prefers-color-scheme: dark` with no explicit `data-bs-theme` set — dark diagram must appear (SC-003)
+- [x] T025 [P] NoScript test: disable JavaScript in browser, reload getting-started page — confirm fully readable with light diagram shown (SC-005, Constitution V)
+- [x] T026 [P] HTML inspection: confirm both `<img>` elements have non-empty `alt` attributes in the rendered page source (Constitution VII)
 
 ---
 
