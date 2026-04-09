@@ -91,7 +91,15 @@ func (r *syncResult) recordChangedRepoFile(repoName, srcPath string) {
 }
 
 func (r *syncResult) hasChanges() bool {
-	return len(r.added) > 0 || len(r.updated) > 0 || len(r.removed) > 0
+	if len(r.added) > 0 || len(r.updated) > 0 || len(r.removed) > 0 {
+		return true
+	}
+	for _, files := range r.changedRepoFiles {
+		if len(files) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func shortSHA(sha string) string {

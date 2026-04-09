@@ -996,6 +996,67 @@ func TestToMarkdown_NoChanges(t *testing.T) {
 	}
 }
 
+func TestHasChanges(t *testing.T) {
+	tests := []struct {
+		name   string
+		result syncResult
+		want   bool
+	}{
+		{
+			name:   "empty result",
+			result: syncResult{},
+			want:   false,
+		},
+		{
+			name:   "only unchanged repos",
+			result: syncResult{unchanged: []string{"repo-a"}},
+			want:   false,
+		},
+		{
+			name:   "added repo",
+			result: syncResult{added: []string{"new-repo"}},
+			want:   true,
+		},
+		{
+			name:   "updated repo",
+			result: syncResult{updated: []string{"existing-repo"}},
+			want:   true,
+		},
+		{
+			name:   "removed repo",
+			result: syncResult{removed: []string{"old-repo"}},
+			want:   true,
+		},
+		{
+			name: "doc file changed without repo-level change",
+			result: syncResult{
+				unchanged: []string{"some-repo"},
+				changedRepoFiles: map[string][]string{
+					"some-repo": {"docs/guide.md"},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "changedRepoFiles present but empty slice",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"some-repo": {},
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.result.hasChanges(); got != tc.want {
+				t.Errorf("hasChanges() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestToMarkdown_FallbackWithoutDetails(t *testing.T) {
 	result := &syncResult{
 		synced: 1,
