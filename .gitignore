@@ -34,6 +34,17 @@ Thumbs.db
 *.swo
 *~
 
+# ─── AI tooling (tool-managed, installed locally via openspec init) ──
+# Hand-maintained workspace rules (.cursor/rules/) are tracked.
+# Tool-installed commands and skills are gitignored — run
+# `openspec init --tools cursor` to restore them locally.
+.cursor/commands/
+.cursor/skills/
+# SpecKit framework files (scripts and templates are tool-managed).
+.specify/scripts/
+.specify/templates/
+.specify/memory/
+
 # ─── Environment and secrets ─────────────────────────────────────────
 .env
 
