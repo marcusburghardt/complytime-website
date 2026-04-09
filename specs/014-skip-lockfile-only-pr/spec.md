@@ -67,3 +67,39 @@ This feature gates automated PR creation on whether at least one doc file actual
 ## Implementation Notes
 
 The `content/docs/projects/*/` path is gitignored — content written by `--write` lives only on the runner's ephemeral disk and is never staged. The `add-paths: .content-lock.json` in the PR step ensures only the lockfile reaches the PR branch. Running the tool twice per cron execution (once for lock update, once for content check) doubles the API calls but is within the tool's authenticated rate-limit budget.
+
+---
+
+## Improvements — PR Richness
+
+**Added**: 2026-04-09  
+**Status**: Done
+
+Follow-on improvements to the automated PR experience, building on the `has_changes` gate established above. These changes add richer context to automated PRs so reviewers can understand what changed at a glance.
+
+### Scope
+
+| ID | Capability |
+|----|-----------|
+| IMP-001 | `changedRepos() []string` helper on `syncResult` — deduplicated, alphabetically sorted list of repo names from `added`, `updated`, and file-level `changedRepoFiles` |
+| IMP-002 | `changedFilesCount() int` helper on `syncResult` — total written files across all repos |
+| IMP-003 | `GITHUB_OUTPUT` emits `changed_repos` (comma-separated) and `changed_files_count` (int) alongside existing outputs |
+| IMP-004 | Dynamic PR title derived from `changed_repos`: ≤ 3 repos shows names (`content: sync complyscribe, trestlebot`), > 3 repos shows count (`content: sync 4 repositories`, singular-aware) |
+| IMP-005 | PR commit `add-paths` expanded to include `content/` so doc file diffs appear in the PR file-change view |
+| IMP-006 | `toMarkdown()` leads with a `**Changed repository/repositories**: \`name\`` line so repo names are visible at the top of the PR body |
+
+### Functional Requirements
+
+- **IMP-FR-001**: `changedRepos()` MUST include repos present in `added`, `updated`, or any non-empty `changedRepoFiles` slice, deduplicated and sorted alphabetically.
+- **IMP-FR-002**: `writeGitHubOutputs` MUST emit `changed_repos` and `changed_files_count` to `GITHUB_OUTPUT`; existing outputs (`has_changes`, `changed_count`, `files_processed`, `error_count`) MUST remain unchanged.
+- **IMP-FR-003**: The "Derive PR title" workflow step MUST be skipped when `has_changes` is `false`.
+- **IMP-FR-004**: PR title MUST use repo names when ≤ 3 repos changed; MUST use `N repository/repositories` otherwise.
+- **IMP-FR-005**: The PR body summary MUST display the list of changed repo names prominently before the detailed per-repo sections.
+
+### Success Criteria
+
+| ID | Criterion |
+|----|-----------|
+| IMP-SC-001 | `TestChangedRepos` passes 6 subtests covering: empty, repo-level only, file-level only, overlap, empty-slice exclusion |
+| IMP-SC-002 | `TestChangedFilesCount` passes 4 subtests covering: zero, single repo, multiple repos, empty slice |
+| IMP-SC-003 | Title dry-run validates all three cases: 2 repos → names, 4 repos → count, boundary (3 repos) → names |

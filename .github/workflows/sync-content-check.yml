@@ -34,14 +34,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Derive PR title
+        id: title
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          IFS=',' read -ra repos <<< "${{ steps.check.outputs.changed_repos }}"
+          count=${#repos[@]}
+          if [ "$count" -le 3 ] && [ "$count" -gt 0 ]; then
+            names=$(printf "%s, " "${repos[@]}"); names="${names%, }"
+            title="content: sync ${names}"
+          else
+            repo_word="repositories"
+            [ "$count" -eq 1 ] && repo_word="repository"
+            title="content: sync ${count} ${repo_word}"
+          fi
+          echo "pr_title=${title}" >> "$GITHUB_OUTPUT"
+
       - name: Create or update PR
         if: steps.check.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0
         with:
-          add-paths: .content-lock.json
+          add-paths: |
+            .content-lock.json
+            content/
           branch: automated/content-sync-update
           commit-message: "content: update upstream documentation lockfile"
-          title: "content: update upstream documentation"
+          title: "${{ steps.title.outputs.pr_title }}"
           body-path: sync-summary.md
           labels: automated, documentation
           delete-branch: true

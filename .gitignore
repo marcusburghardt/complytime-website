@@ -39,6 +39,10 @@ Thumbs.db
 .cursor/commands/
 .cursor/skills/
 .cursor/rules/specify-rules.mdc
+# OpenSpec working-change state — local only, analogous to .specify/scripts/.
+# openspec/config.yaml is tracked (project tool config).
+# Canonical specs live in specs/NNN-name/ (SpecKit format, org standard).
+openspec/changes/
 # SpecKit framework files (scripts and templates are tool-managed).
 .specify/scripts/
 .specify/templates/

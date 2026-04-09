@@ -2,7 +2,7 @@
 
 **Input**: Design documents from `specs/014-skip-lockfile-only-pr/`
 **Branch**: `014-skip-lockfile-only-pr`
-**Status**: Done — all tasks complete.
+**Status**: Done — all tasks complete (Phase 1–3).
 **Prerequisites**: spec.md ✅
 
 ## Format: `[ID] [P?] Description`
@@ -51,4 +51,19 @@
 - No new Go dependencies or third-party packages introduced.
 - `content/docs/projects/*/` is gitignored; the `--write` run writes to the working tree but files are never staged. Only `.content-lock.json` reaches the PR branch via `add-paths: .content-lock.json`.
 - The PR body now comes from the `--write` step summary rather than the `--update-lock` step, meaning it describes which files changed rather than which repo SHAs changed.
-- OpenSpec change artifacts live in `openspec/changes/skip-lockfile-only-pr/` for tool-assisted workflow tracking.
+- OpenSpec working artifacts for the PR richness improvements are archived at `openspec/changes/archive/2026-04-09-improve-pr-summary/` (local only, gitignored).
+
+---
+
+## Phase 3: PR Richness Improvements
+
+**Purpose**: Surface richer context in automated PRs — dynamic title, repo names in body, doc file diffs.
+
+- [x] T006 Add `changedRepos() []string` helper on `syncResult` in `cmd/sync-content/sync.go`: deduplicated, alphabetically sorted names from `added`, `updated`, and non-empty `changedRepoFiles` keys.
+- [x] T007 [P] Add `changedFilesCount() int` helper on `syncResult` in `cmd/sync-content/sync.go`: sum of lengths across all `changedRepoFiles` slices.
+- [x] T008 Extend `writeGitHubOutputs` in `cmd/sync-content/sync.go` to emit `changed_repos` (comma-separated) and `changed_files_count` (int); existing outputs unchanged.
+- [x] T009 [P] Update `toMarkdown()` in `cmd/sync-content/sync.go` to prepend a `**Changed repository/repositories**: \`name\`` lead line when `changedRepos()` is non-empty.
+- [x] T010 [P] Add `TestChangedRepos` (6 subtests) and `TestChangedFilesCount` (4 subtests) in `cmd/sync-content/sync_test.go`.
+- [x] T011 Add "Derive PR title" step (`id: title`) to `.github/workflows/sync-content-check.yml` after the `check` step: reads `changed_repos`, uses names for ≤ 3 repos, count-based fallback for > 3 (singular-aware via `printf "%s, "` + strip trailing separator).
+- [x] T012 [P] Update "Create or update PR" step in `.github/workflows/sync-content-check.yml`: `title:` uses `${{ steps.title.outputs.pr_title }}`; `add-paths` expanded to include `content/`.
+- [x] T013 [P] Verify all tests pass: `go test ./cmd/sync-content/...` green; bash dry-run validates title logic for 2-repo, 4-repo, and boundary (3-repo) cases.
