@@ -996,6 +996,67 @@ func TestToMarkdown_NoChanges(t *testing.T) {
 	}
 }
 
+func TestHasChanges(t *testing.T) {
+	tests := []struct {
+		name   string
+		result syncResult
+		want   bool
+	}{
+		{
+			name:   "empty result",
+			result: syncResult{},
+			want:   false,
+		},
+		{
+			name:   "only unchanged repos",
+			result: syncResult{unchanged: []string{"repo-a"}},
+			want:   false,
+		},
+		{
+			name:   "added repo",
+			result: syncResult{added: []string{"new-repo"}},
+			want:   true,
+		},
+		{
+			name:   "updated repo",
+			result: syncResult{updated: []string{"existing-repo"}},
+			want:   true,
+		},
+		{
+			name:   "removed repo",
+			result: syncResult{removed: []string{"old-repo"}},
+			want:   true,
+		},
+		{
+			name: "doc file changed without repo-level change",
+			result: syncResult{
+				unchanged: []string{"some-repo"},
+				changedRepoFiles: map[string][]string{
+					"some-repo": {"docs/guide.md"},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "changedRepoFiles present but empty slice",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"some-repo": {},
+				},
+			},
+			want: false,
+		},
+	}
+
+	for i := range tests {
+		t.Run(tests[i].name, func(t *testing.T) {
+			if got := tests[i].result.hasChanges(); got != tests[i].want {
+				t.Errorf("hasChanges() = %v, want %v", got, tests[i].want)
+			}
+		})
+	}
+}
+
 func TestToMarkdown_FallbackWithoutDetails(t *testing.T) {
 	result := &syncResult{
 		synced: 1,
@@ -1355,5 +1416,126 @@ func TestParseNameList_RepoFilterOverridesExclude(t *testing.T) {
 	}
 	if !includeSet["complyctl"] {
 		t.Error("complyctl should be in includeSet")
+	}
+}
+
+func TestChangedRepos(t *testing.T) {
+	tests := []struct {
+		name   string
+		result syncResult
+		want   []string
+	}{
+		{
+			name:   "empty result",
+			result: syncResult{},
+			want:   []string{},
+		},
+		{
+			name:   "repo-level added only",
+			result: syncResult{added: []string{"repo-b", "repo-a"}},
+			want:   []string{"repo-a", "repo-b"},
+		},
+		{
+			name:   "repo-level updated only",
+			result: syncResult{updated: []string{"repo-c"}},
+			want:   []string{"repo-c"},
+		},
+		{
+			name: "file-level changes only (no repo-level add/update)",
+			result: syncResult{
+				unchanged: []string{"repo-x"},
+				changedRepoFiles: map[string][]string{
+					"repo-x": {"docs/guide.md"},
+				},
+			},
+			want: []string{"repo-x"},
+		},
+		{
+			name: "overlap: repo in both updated and changedRepoFiles",
+			result: syncResult{
+				updated: []string{"repo-z"},
+				changedRepoFiles: map[string][]string{
+					"repo-z": {"docs/page.md"},
+					"repo-a": {"docs/intro.md"},
+				},
+			},
+			want: []string{"repo-a", "repo-z"},
+		},
+		{
+			name: "changedRepoFiles with empty slice excluded",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"repo-empty": {},
+				},
+			},
+			want: []string{},
+		},
+	}
+
+	for i := range tests {
+		t.Run(tests[i].name, func(t *testing.T) {
+			got := tests[i].result.changedRepos()
+			if got == nil {
+				got = []string{}
+			}
+			if len(got) != len(tests[i].want) {
+				t.Fatalf("changedRepos() = %v, want %v", got, tests[i].want)
+			}
+			for j := range got {
+				if got[j] != tests[i].want[j] {
+					t.Errorf("changedRepos()[%d] = %q, want %q", j, got[j], tests[i].want[j])
+				}
+			}
+		})
+	}
+}
+
+func TestChangedFilesCount(t *testing.T) {
+	tests := []struct {
+		name   string
+		result syncResult
+		want   int
+	}{
+		{
+			name:   "zero files",
+			result: syncResult{},
+			want:   0,
+		},
+		{
+			name: "single repo with files",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"repo-a": {"docs/a.md", "docs/b.md"},
+				},
+			},
+			want: 2,
+		},
+		{
+			name: "multiple repos",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"repo-a": {"docs/a.md"},
+					"repo-b": {"docs/b.md", "docs/c.md", "docs/d.md"},
+				},
+			},
+			want: 4,
+		},
+		{
+			name: "empty slice counts as zero",
+			result: syncResult{
+				changedRepoFiles: map[string][]string{
+					"repo-a": {},
+				},
+			},
+			want: 0,
+		},
+	}
+
+	for i := range tests {
+		t.Run(tests[i].name, func(t *testing.T) {
+			if got := tests[i].result.changedFilesCount(); got != tests[i].want {
+				t.Errorf("changedFilesCount() = %d, want %d", got, tests[i].want)
+			}
+		})
 	}
 }

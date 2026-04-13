@@ -90,8 +90,50 @@ func (r *syncResult) recordChangedRepoFile(repoName, srcPath string) {
 	r.mu.Unlock()
 }
 
+// changedRepos returns an alphabetically sorted, deduplicated list of repo
+// names that had content changes: repo-level adds/updates plus repos that had
+// individual file-level changes recorded in changedRepoFiles.
+func (r *syncResult) changedRepos() []string {
+	seen := make(map[string]struct{})
+	for _, name := range r.added {
+		seen[name] = struct{}{}
+	}
+	for _, name := range r.updated {
+		seen[name] = struct{}{}
+	}
+	for name, files := range r.changedRepoFiles {
+		if len(files) > 0 {
+			seen[name] = struct{}{}
+		}
+	}
+	repos := make([]string, 0, len(seen))
+	for name := range seen {
+		repos = append(repos, name)
+	}
+	sort.Strings(repos)
+	return repos
+}
+
+// changedFilesCount returns the total number of individual documentation files
+// that were written during this sync run across all repos.
+func (r *syncResult) changedFilesCount() int {
+	total := 0
+	for _, files := range r.changedRepoFiles {
+		total += len(files)
+	}
+	return total
+}
+
 func (r *syncResult) hasChanges() bool {
-	return len(r.added) > 0 || len(r.updated) > 0 || len(r.removed) > 0
+	if len(r.added) > 0 || len(r.updated) > 0 || len(r.removed) > 0 {
+		return true
+	}
+	for _, files := range r.changedRepoFiles {
+		if len(files) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func shortSHA(sha string) string {
@@ -152,6 +194,18 @@ func (r *syncResult) toMarkdown() string {
 	sort.Strings(updated)
 	sort.Strings(removed)
 	sort.Strings(unchanged)
+
+	if repos := r.changedRepos(); len(repos) > 0 {
+		repoWord := "repositories"
+		if len(repos) == 1 {
+			repoWord = "repository"
+		}
+		names := make([]string, len(repos))
+		for i, name := range repos {
+			names[i] = "`" + name + "`"
+		}
+		fmt.Fprintf(&b, "**Changed %s**: %s\n\n", repoWord, strings.Join(names, ", "))
+	}
 
 	if len(added) > 0 {
 		b.WriteString("### New Repositories\n\n")
@@ -737,6 +791,8 @@ func writeGitHubOutputs(result *syncResult) {
 			}
 			_, _ = fmt.Fprintf(f, "has_changes=%s\n", hasChanges)
 			_, _ = fmt.Fprintf(f, "changed_count=%d\n", len(result.added)+len(result.updated))
+			_, _ = fmt.Fprintf(f, "changed_repos=%s\n", strings.Join(result.changedRepos(), ","))
+			_, _ = fmt.Fprintf(f, "changed_files_count=%d\n", result.changedFilesCount())
 			_, _ = fmt.Fprintf(f, "files_processed=%d\n", result.filesProcessed)
 			_, _ = fmt.Fprintf(f, "error_count=%d\n", result.errors)
 		}
