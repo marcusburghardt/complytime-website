@@ -90,7 +90,7 @@ References:
 {{- /* Get diagram. Fix 1: "svg" lowercase (upstream bug sends "SVG" which kroki.io rejects).
      Fix 2: warnf instead of errorf so network failures do not abort the build. */}}
 {{- $body := dict "diagram_source" $inner "diagram_type" $diagramType "output_format" "svg" | jsonify }}
-{{- $opts := dict "method" "post" "body" $body }}
+{{- $opts := dict "method" "post" "body" $body "headers" (dict "Content-Type" "application/json") }}
 {{- with try (resources.GetRemote $apiEndpoint $opts) }}
   {{- with .Err }}
     {{- warnf "The %q code block render hook was unable to get the remote diagram. See %s. %s" $renderHookName $position . }}
