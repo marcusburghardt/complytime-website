@@ -17,11 +17,11 @@ permissions:
 jobs:
   call_deps_reviewer:
     name: General
-    uses: complytime/org-infra/.github/workflows/reusable_deps_reviewer.yml@32b8e9b381a33fc4c3f8768856b11d94655f20c4 # main
+    uses: complytime/org-infra/.github/workflows/reusable_deps_reviewer.yml@cfd981e757253218aefb37c91969c32827e5c4b1 # v0.2.1
 
   call_dependabot_reviewer:
     name: Dependabot
-    uses: complytime/org-infra/.github/workflows/reusable_dependabot_reviewer.yml@32b8e9b381a33fc4c3f8768856b11d94655f20c4 # main
+    uses: complytime/org-infra/.github/workflows/reusable_dependabot_reviewer.yml@cfd981e757253218aefb37c91969c32827e5c4b1 # v0.2.1
 
   comment_on_dependabot_prs:
     name: Dependabot Comment

@@ -25,7 +25,7 @@ jobs:
       security-events: write
       id-token: write
       packages: write
-    uses: complytime/org-infra/.github/workflows/reusable_vuln_scan.yml@32b8e9b381a33fc4c3f8768856b11d94655f20c4 # main
+    uses: complytime/org-infra/.github/workflows/reusable_vuln_scan.yml@cfd981e757253218aefb37c91969c32827e5c4b1 # v0.2.1
 
   call_reusable_security:
     name: OpenSSF Scorecards
@@ -33,4 +33,4 @@ jobs:
       contents: read
       id-token: write
       security-events: write
-    uses: complytime/org-infra/.github/workflows/reusable_security.yml@32b8e9b381a33fc4c3f8768856b11d94655f20c4 # main
+    uses: complytime/org-infra/.github/workflows/reusable_security.yml@cfd981e757253218aefb37c91969c32827e5c4b1 # v0.2.1
